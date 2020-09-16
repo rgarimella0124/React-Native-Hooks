@@ -6,16 +6,56 @@ import {
   Dimensions,
   StyleSheet,
   StatusBar,
+  TextInput,
   Image,
 } from "react-native";
 import * as Animatable from "react-native-animatable";
-
+import { FontAwesome, Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 
 const SplashScreen = ({ navigation }) => {
+  const [data, setData] = React.useState({
+    username: "",
+    password: "",
+    check_textInputChange: false,
+    secureTextEntry: true,
+    isValidUser: true,
+    isValidPassword: true,
+  });
   const { colors } = useTheme();
+  const textInputChange = (val) => {
+    if (val.trim().length >= 4) {
+      setData({
+        ...data,
+        username: val,
+        check_textInputChange: true,
+        isValidUser: true,
+      });
+    } else {
+      setData({
+        ...data,
+        username: val,
+        check_textInputChange: false,
+        isValidUser: false,
+      });
+    }
+  };
+
+  const handleValidUser = (val) => {
+    if (val.trim().length >= 4) {
+      setData({
+        ...data,
+        isValidUser: true,
+      });
+    } else {
+      setData({
+        ...data,
+        isValidUser: false,
+      });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -29,6 +69,7 @@ const SplashScreen = ({ navigation }) => {
           resizeMode="stretch"
         />
       </View>
+
       <Animatable.View
         style={[
           styles.footer,
@@ -40,15 +81,36 @@ const SplashScreen = ({ navigation }) => {
       >
         <Text
           style={[
-            styles.title,
+            styles.text_footer,
             {
               color: colors.text,
             },
           ]}
         >
-          Stay connected with everyone!
+          CorporateID
         </Text>
-        <Text style={styles.text}>Sign in with account</Text>
+        <View style={styles.action}>
+          <FontAwesome name="user-o" color={colors.text} size={20} />
+          <TextInput
+            placeholder="Enter Corporate Id"
+            placeholderTextColor="#666666"
+            style={[
+              styles.textInput,
+              {
+                color: colors.text,
+              },
+            ]}
+            autoCapitalize="none"
+            onChangeText={(val) => textInputChange(val)}
+            onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
+          />
+          {data.check_textInputChange ? (
+            <Animatable.View animation="bounceIn">
+              <Feather name="check-circle" color="green" size={20} />
+            </Animatable.View>
+          ) : null}
+        </View>
+
         <View style={styles.button}>
           <TouchableOpacity onPress={() => navigation.navigate("SignInScreen")}>
             <LinearGradient
@@ -80,6 +142,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  action: {
+    flexDirection: "row",
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f2f2f2",
+    paddingBottom: 5,
+  },
   footer: {
     flex: 1,
     backgroundColor: "#fff",
@@ -92,14 +161,23 @@ const styles = StyleSheet.create({
     width: height_logo,
     height: height_logo,
   },
-  title: {
-    color: "#05375a",
-    fontSize: 30,
-    fontWeight: "bold",
+
+  actionError: {
+    flexDirection: "row",
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#FF0000",
+    paddingBottom: 5,
   },
-  text: {
-    color: "grey",
-    marginTop: 5,
+  textInput: {
+    flex: 1,
+    marginTop: Platform.OS === "ios" ? 0 : -12,
+    paddingLeft: 10,
+    color: "#05375a",
+  },
+  errorMsg: {
+    color: "#FF0000",
+    fontSize: 14,
   },
   button: {
     alignItems: "flex-end",
